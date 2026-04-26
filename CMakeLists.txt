@@ -19,6 +19,7 @@ add_executable(TerrainMesh
     src/Delaunay.cpp
     src/Ruppert.cpp
     src/Renderer.cpp
+    src/Camera.cpp
 )
 
 target_link_libraries(TerrainMesh PRIVATE
