@@ -1,0 +1,13 @@
+# Build output
+build/
+
+# vcpkg installed packages (restored automatically)
+vcpkg_installed/
+
+# VSCode local settings (keep settings.json but ignore personal ones)
+.vscode/launch.json
+.vscode/c_cpp_properties.json
+
+# OS clutter
+.DS_Store
+Thumbs.db

@@ -1,0 +1,5 @@
+{
+  "cmake.configurePreset": "default",
+  "cmake.buildPreset": "default",
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+}
