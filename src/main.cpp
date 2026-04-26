@@ -1,4 +1,6 @@
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Renderer.h"
@@ -32,11 +34,22 @@ int main() {
     Renderer renderer;
     renderer.uploadMesh(vertices, 3, indices, 3);
 
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), 1280.0f/720.0f, 0.01f, 1000.0f);
+    glm::mat4 view = glm::lookAt(
+        glm::vec3(0.0f, 0.0f, 3.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+    glm::mat4 model = glm::mat4(1.0f);
+
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        renderer.setViewMatrix(view);
+        renderer.setModelMatrix(model);
+        renderer.setProjMatrix(proj);
         renderer.draw();
 
         glfwSwapBuffers(window);

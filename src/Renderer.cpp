@@ -4,7 +4,11 @@
 #include <sstream>
 #include <iostream>
 
-Renderer::Renderer(){
+Renderer::Renderer()
+    :   viewMatrix(glm::mat4(1.0f)),
+        projMatrix(glm::mat4(1.0f)),
+        modelMatrix(glm::mat4(1.0f))
+{
     shaderProgram = glCreateProgram();
 
     std::string vertSrc = loadShader("shaders/terrain.vert");
@@ -66,8 +70,30 @@ void Renderer::uploadMesh(const float* vertices, int vertexCount, const unsigned
     this->indexCount = indexCount;
 }
 
+void Renderer::setViewMatrix(const glm::mat4& view){
+    viewMatrix = view;
+}
+
+void Renderer::setProjMatrix(const glm::mat4& proj){
+    projMatrix = proj;
+}
+
+void Renderer::setModelMatrix(const glm::mat4& model){
+    modelMatrix = model;
+}
+
+void Renderer::setUniformMatrix4fv(const std::string& name, const glm::mat4& matrix){
+    GLint loc = glGetUniformLocation(shaderProgram, name.c_str());
+    glUniformMatrix4fv(loc, 1, GL_FALSE, &matrix[0][0]);
+}
+
 void Renderer::draw(){
     glUseProgram(shaderProgram);
+
+    setUniformMatrix4fv("view", viewMatrix);
+    setUniformMatrix4fv("proj", projMatrix);
+    setUniformMatrix4fv("model", modelMatrix);
+
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 }
