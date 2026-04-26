@@ -9,6 +9,8 @@ find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 
+include_directories(third_party)
+
 # stb_image is header-only, just drop it in src/
 add_executable(TerrainMesh
     src/main.cpp
@@ -27,5 +29,18 @@ target_link_libraries(TerrainMesh PRIVATE
 )
 
 # Copy shaders next to the executable
-file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY assets  DESTINATION ${CMAKE_BINARY_DIR})
+# file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR})
+# file(COPY assets  DESTINATION ${CMAKE_BINARY_DIR})
+
+# Post-build command to copy assets directory to the output directory
+add_custom_command(TARGET TerrainMesh POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/shaders
+        $<TARGET_FILE_DIR:TerrainMesh>/shaders
+)
+
+add_custom_command(TARGET TerrainMesh POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:TerrainMesh>/assets
+)
