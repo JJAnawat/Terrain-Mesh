@@ -116,7 +116,7 @@ int main() {
                 }
 
                 std::vector<glm::vec3> local_normals = computeVertexNormals(local_vertices, local_indices);
-                std::vector<glm::vec3> local_colors = generateWhiteColors(local_vertices.size());
+                std::vector<glm::vec3> local_colors = generateElevationColors(local_vertices);
 
                 {
                     std::lock_guard<std::mutex> lock(meshMutex);
