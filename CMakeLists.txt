@@ -29,10 +29,6 @@ target_link_libraries(TerrainMesh PRIVATE
     glad::glad
 )
 
-# Copy shaders next to the executable
-# file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR})
-# file(COPY assets  DESTINATION ${CMAKE_BINARY_DIR})
-
 # Post-build command to copy assets directory to the output directory
 add_custom_command(TARGET TerrainMesh POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

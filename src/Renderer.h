@@ -9,7 +9,12 @@ class Renderer{
         Renderer();
         ~Renderer();
 
-        void uploadMesh(const float* vertices, int vertexCount, const unsigned int* indices, int indexCount);
+        void uploadMesh(
+            const std::vector<glm::vec3>& vertices, 
+            const std::vector<glm::vec3>& normals,
+            const std::vector<glm::vec3>& colors,
+            const std::vector<unsigned int>& indices    
+        );
         void draw();
 
         void setViewMatrix(const glm::mat4& view);
@@ -18,12 +23,10 @@ class Renderer{
 
     private:
         unsigned int shaderProgram;
-        unsigned int VAO, VBO, EBO;
-        int indexCount;
+        unsigned int VAO, VBO, normalVBO, colorVBO, EBO;
+        size_t indexCount;
 
-        glm::mat4 viewMatrix;
-        glm::mat4 projMatrix;
-        glm::mat4 modelMatrix;
+        glm::mat4 viewMatrix, projMatrix, modelMatrix;
 
         std::string loadShader(const std::string& filepath);
         unsigned int compileShader(const std::string& source, unsigned int type);

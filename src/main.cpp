@@ -1,24 +1,27 @@
 #include <iostream>
 #include "Camera.h"
 #include "Renderer.h"
+#include "Geometry.h"
 #include <GLFW/glfw3.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 
 // Height map loading
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 
-float vertices[] = {
-    // Base quad (z = -0.5)
-    -0.5f, -0.5f, -0.5f,  // 0: bottom-left
-     0.5f, -0.5f, -0.5f,  // 1: bottom-right
-     0.5f,  0.5f, -0.5f,  // 2: top-right
-    -0.5f,  0.5f, -0.5f,  // 3: top-left
+std::vector<glm::vec3> vertices = {
+    // Base quad (y = 0, on XY plane)
+    glm::vec3(-0.5f, 0.0f, -0.5f),  // 0: back-left
+    glm::vec3( 0.5f, 0.0f, -0.5f),  // 1: back-right
+    glm::vec3( 0.5f, 0.0f,  0.5f),  // 2: front-right
+    glm::vec3(-0.5f, 0.0f,  0.5f),  // 3: front-left
     
-    // Apex (top point, centered)
-     0.0f,  0.0f,  0.5f   // 4: apex
+    // Apex (pointing up along +Y)
+    glm::vec3( 0.0f,  0.88f,  0.0f)  // 4: apex
 };
  
-unsigned int indices[] = {
+std::vector<unsigned int> indices = {
     // Bottom face (z = -0.5)
     0, 1, 2,
     0, 2, 3,
@@ -79,15 +82,16 @@ int main() {
     glfwSetCursorPosCallback(window, mouseMoveCallback);
     glfwSetScrollCallback(window, scrollCallback);
 
-    renderer.uploadMesh(vertices, 5, indices, 18);
+    // Sample Pyramids
+    std::vector<glm::vec3> normals = computeVertexNormals(vertices, indices);
+    std::vector<glm::vec3> colors = generateWhiteColors(vertices.size());
 
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), 1280.0f/720.0f, 0.01f, 1000.0f);
-    glm::mat4 view = glm::lookAt(
-        glm::vec3(0.0f, 0.0f, 3.0f), // Eye position
-        glm::vec3(0.0f, 0.0f, 0.0f), // Look at
-        glm::vec3(0.0f, 1.0f, 0.0f) // Up
-    );
+    renderer.uploadMesh(vertices, normals, colors, indices);
+
     glm::mat4 model = glm::mat4(1.0f);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -103,7 +107,7 @@ int main() {
         renderer.setModelMatrix(model);
         renderer.setProjMatrix(proj);
         renderer.draw();
-        
+
         glfwSwapBuffers(window);
         glfwPollEvents();
         

@@ -33,41 +33,76 @@ Renderer::Renderer()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    VAO = VBO = EBO = 0;
+    VAO = VBO = normalVBO = EBO = 0;
     indexCount = 0;
 }
 
 Renderer::~Renderer(){
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &normalVBO);
+    glDeleteBuffers(1, &colorVBO);
     glDeleteBuffers(1, &EBO);
     glDeleteVertexArrays(1, &VAO);
     glDeleteProgram(shaderProgram);
 }
 
-void Renderer::uploadMesh(const float* vertices, int vertexCount, const unsigned int* indices, int indexCount){
+void Renderer::uploadMesh(
+    const std::vector<glm::vec3>& vertices,
+    const std::vector<glm::vec3>& normals,
+    const std::vector<glm::vec3>& colors,
+    const std::vector<unsigned int>& indices){
+        
     if (!VAO){
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
     
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+        glGenBuffers(1, &normalVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+        
+        glGenBuffers(1, &colorVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
     
         glGenBuffers(1, &EBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*) 0);
+        // Position
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
         glEnableVertexAttribArray(0);
+        
+        // Normal
+        glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
+        glEnableVertexAttribArray(1);
+        
+        // Color
+        glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
+        glEnableVertexAttribArray(2);
         
         glBindVertexArray(0);
     }
 
-    glBindBuffer(GL_COPY_READ_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertexCount * 3 * sizeof(float), vertices, GL_DYNAMIC_DRAW);
-
+    // Position
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_DYNAMIC_DRAW);
+    
+    // Normals
+    glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), normals.data(), GL_DYNAMIC_DRAW);
+    
+    // Colors
+    glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), colors.data(), GL_DYNAMIC_DRAW);
+    
+    // Indices
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
 
-    this->indexCount = indexCount;
+    this->indexCount = indices.size();
 }
 
 void Renderer::setViewMatrix(const glm::mat4& view){
