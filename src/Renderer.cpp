@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -117,9 +118,18 @@ void Renderer::setModelMatrix(const glm::mat4& model){
     modelMatrix = model;
 }
 
+void Renderer::setViewPos(const glm::vec3& pos){
+    viewPos = pos;
+}
+
 void Renderer::setUniformMatrix4fv(const std::string& name, const glm::mat4& matrix){
     GLint loc = glGetUniformLocation(shaderProgram, name.c_str());
     glUniformMatrix4fv(loc, 1, GL_FALSE, &matrix[0][0]);
+}
+
+void Renderer::setUniformVector3fv(const std::string& name, const glm::vec3& vec){
+    GLint loc = glGetUniformLocation(shaderProgram, name.c_str());
+    glUniform3fv(loc, 1, glm::value_ptr(vec));
 }
 
 void Renderer::draw(){
@@ -128,6 +138,7 @@ void Renderer::draw(){
     setUniformMatrix4fv("view", viewMatrix);
     setUniformMatrix4fv("proj", projMatrix);
     setUniformMatrix4fv("model", modelMatrix);
+    setUniformVector3fv("viewPos", viewPos);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);

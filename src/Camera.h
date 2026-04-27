@@ -63,7 +63,7 @@ private:
     bool isLeftDragging, isRightDragging;
     
     // Constants
-    const float MIN_ELEVATION = -glm::pi<float>() * 0.1f;  // Clamp to avoid going below terrain
+    const float MIN_ELEVATION = 0;  // Clamp to avoid going below terrain
     const float MAX_ELEVATION = glm::pi<float>() * 0.45f;
 
     glm::vec3 computeEyePosition() const;

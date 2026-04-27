@@ -112,6 +112,7 @@ int main() {
         renderer.setViewMatrix(view);
         renderer.setModelMatrix(model);
         renderer.setProjMatrix(proj);
+        renderer.setViewPos(camera.Position);
         renderer.draw();
 
         glfwSwapBuffers(window);

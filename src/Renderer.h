@@ -20,6 +20,7 @@ class Renderer{
         void setViewMatrix(const glm::mat4& view);
         void setProjMatrix(const glm::mat4& proj);
         void setModelMatrix(const glm::mat4& model);
+        void setViewPos(const glm::vec3& pos);
 
     private:
         unsigned int shaderProgram;
@@ -27,10 +28,12 @@ class Renderer{
         size_t indexCount;
 
         glm::mat4 viewMatrix, projMatrix, modelMatrix;
+        glm::vec3 viewPos;
 
         std::string loadShader(const std::string& filepath);
         unsigned int compileShader(const std::string& source, unsigned int type);
         void setUniformMatrix4fv(const std::string& name, const glm::mat4& matrix);
+        void setUniformVector3fv(const std::string& name, const glm::vec3& vec);
 };
 
 #endif
