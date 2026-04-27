@@ -40,13 +40,17 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
         g_camera->onScroll(yOffset);
 }
 
-void processInput(GLFWwindow* window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+bool wireframeMode = false;
+
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    // Only toggle on the exact moment the key is pressed down
+    if (key == GLFW_KEY_F && action == GLFW_PRESS) 
+        wireframeMode = !wireframeMode;
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS){
+    if (key == GLFW_KEY_P && action == GLFW_PRESS)
         if(g_camera)
             g_camera->printState();
-    }
 }
 
 std::mutex meshMutex;
@@ -77,8 +81,9 @@ int main() {
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetCursorPosCallback(window, mouseMoveCallback);
     glfwSetScrollCallback(window, scrollCallback);
+    glfwSetKeyCallback(window, keyCallback);
 
-    Heightmap heightmap;
+    Heightmap heightmap(4.0f, 4.0f, 1.0f);
     if(!heightmap.load("assets/test_heightmap.png"))
         return -1;
 
@@ -98,7 +103,7 @@ int main() {
                 float currentFov = requestedZoom;
                 rebuildRequested = false;
 
-                lod.rebuild_mesh(camPos, currentFov, baseCorners, 2500);
+                lod.rebuild_mesh(camPos, currentFov, baseCorners, 1000);
 
                 std::vector<glm::vec3> local_vertices;
                 std::vector<unsigned int> local_indices;
@@ -143,6 +148,12 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        if (wireframeMode) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw as wireframe
+        } else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Draw as solid colored triangles
+        }
         
         int width, height;
         glfwGetWindowSize(window, &width, &height);
@@ -176,8 +187,6 @@ int main() {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-        
-        processInput(window);
     }
     isRunning = false;
     lodThread.join();
