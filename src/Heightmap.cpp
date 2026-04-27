@@ -130,15 +130,11 @@ std::vector<glm::vec3> Heightmap::importanceSample(int numSamples) {
         int idx = std::lower_bound(cdf.begin(), cdf.end(), u) - cdf.begin() - 1;
         idx = std::max(0, std::min(idx, width * height - 1));
         
-        int py = idx / width;
-        int px = idx % width;
-        
-        // Jitter within pixel
-        float jitterX = (dist(rng) - 0.5f) * 0.5f;
-        float jitterY = (dist(rng) - 0.5f) * 0.5f;
+        int py = idx / width; // [0, height-1]
+        int px = idx % width; // [0, width -1]
 
-        float normalizedX = (px + 0.5f + jitterX) / width;
-        float normalizedZ = (py + 0.5f + jitterY) / height;
+        float normalizedX = (px + 0.5f) / width;
+        float normalizedZ = (py + 0.5f) / height;
 
         float worldX = (normalizedX - 0.5f) * widthExtent;
         float worldZ = (normalizedZ - 0.5f) * depthExtent;

@@ -28,12 +28,12 @@ void Delaunay::build(const std::vector<glm::vec3>& points) {
     }
 }
 
-void Delaunay::insert_point(const glm::vec3& p) {
+int Delaunay::insert_point(const glm::vec3& p, int start_face) {
     glm::vec2 p2d(p.x, p.z);
     
-    // locate point using DAG
-    int face_idx = dcel.locate_point(p2d);
-    if (face_idx == -1) return; // Should never happen while inside the supertriangle
+    // locate point
+    int face_idx = dcel.locate_point(p2d, start_face);
+    if (face_idx == -1) return -1; // Should never happen while inside the supertriangle
     
     // Get the 3 outer half-edges of the triangle before split it
     auto [he0, he1, he2] = dcel.face_half_edges(face_idx);
@@ -45,6 +45,8 @@ void Delaunay::insert_point(const glm::vec3& p) {
     legalize_edge(v_new, he0);
     legalize_edge(v_new, he1);
     legalize_edge(v_new, he2);
+
+    return v_new;
 }
 
 void Delaunay::legalize_edge(int pr, int he) {

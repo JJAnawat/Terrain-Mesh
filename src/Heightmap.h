@@ -16,6 +16,7 @@ class Heightmap {
         int getHeight() const { return height; }
         float getHeight(int x, int y) const;
         float getGradient(int x, int y) const;
+        float bilinearInterpolate(float x, float y) const;
         
         std::vector<glm::vec3> importanceSample(int numSamples);
         std::vector<glm::vec3> generateTestTerrain(int gridWidth, int gridDepth);
@@ -28,7 +29,6 @@ class Heightmap {
         std::vector<float> gradientMagnitude;
 
         void computeSobelGradient();
-        float bilinearInterpolate(float x, float y) const;
 };
 
 #endif

@@ -11,13 +11,6 @@
 // Every undirected edge is split into two directed half-edges.
 // Each half-edge belongs to exactly one face and points to its twin (opposite direction).
 
-struct DAGNode {
-    int v0, v1, v2;            // The 3 vertices that made up this triangle geometrically
-    std::vector<int> children; // Indices to child DAG nodes
-    int dcel_face;             // Corresponding active face in DCEL
-    bool active;               // True if this triangle still exists in the current mesh
-};
-
 struct HalfEdge {
     int origin;      // vertex index this half-edge starts from
     int twin;        // index of the opposite half-edge (same geometric edge, opposite direction)
@@ -41,8 +34,6 @@ public:
     std::vector<Vertex> vertices;
     std::vector<HalfEdge> half_edges;
     std::vector<Face> faces;
-    std::vector<DAGNode> dag;
-    std::vector<int> face_to_dag;  // Maps a DCEL face_idx to its corresponding DAG node index
 
     // ========================================================================
     // CONSTRUCTION & TOPOLOGY
@@ -64,6 +55,8 @@ public:
     /// Link two half-edges as twins (same geometric edge, opposite direction).
     /// Call this after triangles are created to stitch them together.
     void link_twins(int he0, int he1);
+
+    void reserve_memory(int max_vertices);
 
     // ========================================================================
     // TRAVERSAL & QUERIES

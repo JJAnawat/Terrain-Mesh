@@ -14,7 +14,7 @@ public:
     void build(const std::vector<glm::vec3>& points);
     
     // Insertion of a single point
-    void insert_point(const glm::vec3& p);
+    int insert_point(const glm::vec3& p, int start_face = 0);
     
 private:
     // The core recursive function that flips edges to restore the Delaunay property

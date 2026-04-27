@@ -82,6 +82,12 @@ void DCEL::link_twins(int he0, int he1) {
     half_edges[he1].twin = he0;
 }
 
+void DCEL::reserve_memory(int max_vertices){
+    vertices.reserve(max_vertices);
+    faces.reserve(max_vertices*2);
+    half_edges.reserve(max_vertices*6);
+}
+
 // Traverse
 
 std::array<int, 3> DCEL::face_vertices(int face_idx) const {
@@ -128,7 +134,7 @@ std::vector<int> DCEL::vertex_half_edges(int vertex_idx) const {
     do {
         result.push_back(current);
         
-        current = half_edges[half_edges[half_edges[current].next].next].twin;
+        current = half_edges[half_edges[current].prev].twin;
         
         if (current == -1) break;  // reached boundary of mesh
     } while (current != start && result.size() < 10000);  // safety limit
@@ -174,13 +180,12 @@ glm::vec2 DCEL::circumcenter(int face_idx) const {
         return (a + b + c) / 3.0f;
     }
     
-    float ux = ((a.x * a.x + a.y * a.y) * (b.y - c.y) + 
-                (b.x * b.x + b.y * b.y) * (c.y - a.y) + 
-                (c.x * c.x + c.y * c.y) * (a.y - b.y)) / d;
-    
-    float uy = ((a.x * a.x + a.y * a.y) * (c.x - b.x) + 
-                (b.x * b.x + b.y * b.y) * (a.x - c.x) + 
-                (c.x * c.x + c.y * c.y) * (b.x - a.x)) / d;
+    float a_len2 = a.x * a.x + a.y * a.y;
+    float b_len2 = b.x * b.x + b.y * b.y;
+    float c_len2 = c.x * c.x + c.y * c.y;
+
+    float ux = (a_len2 * (b.y - c.y) + b_len2 * (c.y - a.y) + c_len2 * (a.y - b.y)) / d;
+    float uy = (a_len2 * (c.x - b.x) + b_len2 * (a.x - c.x) + c_len2 * (b.x - a.x)) / d;
     
     return {ux, uy};
 }
@@ -256,38 +261,46 @@ double DCEL::get_min_weight(glm::vec2 p, int v0, int v1, int v2) const {
 }
 
 int DCEL::locate_point(glm::vec2 p, int start_face) const {    
-    if (dag.empty())
-        return -1;
+    if (faces.empty()) return -1;
     
-    int curr=0;
-    
-    while(!dag[curr].active){
-        bool found_child = false;
-        int best_child = -1;
-        double max_min_w = -1e30;
+    int curr_face = start_face;
+    if (curr_face < 0 || curr_face >= faces.size() || faces[curr_face].is_outer) {
+        curr_face = 0; // Fallback to an arbitrary valid face
+    }
+
+    // Directed Edge Walk
+    while (true) {
+        auto [he0, he1, he2] = face_half_edges(curr_face);
         
-        for (int child_idx: dag[curr].children){
-            double min_w = get_min_weight(p, dag[child_idx].v0, dag[child_idx].v1, dag[child_idx].v2);
+        // Helper lambda for 2D cross product (orientation)
+        auto edge_side = [&](int he_idx) {
+            glm::vec2 a = glm::vec2(vertices[half_edges[he_idx].origin].pos.x, vertices[half_edges[he_idx].origin].pos.z);
+            glm::vec2 b = glm::vec2(vertices[half_edges[half_edges[he_idx].next].origin].pos.x, vertices[half_edges[half_edges[he_idx].next].origin].pos.z);
+            return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+        };
 
-            if (min_w >= -1e-9){
-                curr = child_idx;
-                found_child = true;
-                break;
-            }
-
-            if (min_w > max_min_w){
-                max_min_w = min_w;
-                best_child = child_idx;
-            }
-        }
-
-        if(!found_child){
-            curr = best_child;
+        // If the point is to the right of an edge, it must be in the neighboring triangle
+        if (edge_side(he0) < -1e-7f) {
+            int twin = half_edges[he0].twin;
+            if (twin == -1) return curr_face; // Reached boundary
+            curr_face = half_edges[twin].face;
+        } 
+        else if (edge_side(he1) < -1e-7f) {
+            int twin = half_edges[he1].twin;
+            if (twin == -1) return curr_face;
+            curr_face = half_edges[twin].face;
+        } 
+        else if (edge_side(he2) < -1e-7f) {
+            int twin = half_edges[he2].twin;
+            if (twin == -1) return curr_face;
+            curr_face = half_edges[twin].face;
+        } 
+        else {
+            // Point is to the left (or exactly on) all 3 edges -> We found the containing face!
+            return curr_face;
         }
     }
-    return dag[curr].dcel_face;
 }
-
 
 // Mesh
 
@@ -360,24 +373,6 @@ int DCEL::insert_point_in_face(int face_idx, glm::vec2 p, float z) {
     vertices[v0].half_edge = he0;
     vertices[v1].half_edge = he1;
     vertices[v2].half_edge = he2;
-
-    int old_dag_idx = face_to_dag[f0];
-    dag[old_dag_idx].active = false;
-
-    int n0 = dag.size();
-    dag.push_back({v0, v1, v_new, {}, f0, true});
-    int n1 = dag.size();
-    dag.push_back({v1, v2, v_new, {}, f1, true});
-    int n2 = dag.size();
-    dag.push_back({v2, v0, v_new, {}, f2, true});
-
-    face_to_dag[f0] = n0;
-    face_to_dag[f1] = n1;
-    face_to_dag[f2] = n2;
-
-    dag[old_dag_idx].children.push_back(n0);
-    dag[old_dag_idx].children.push_back(n1);
-    dag[old_dag_idx].children.push_back(n2);
 
     return v_new;
 }
@@ -455,26 +450,6 @@ void DCEL::flip_edge(int half_edge_idx) {
     vertices[v_B].half_edge = e1; // B -> C
     vertices[v_C].half_edge = e2; // C -> A
     vertices[v_D].half_edge = t2; // D -> B
-
-    int old_dag_0 = face_to_dag[f_0];
-    int old_dag_1 = face_to_dag[f_1];
-
-    dag[old_dag_0].active = false;
-    dag[old_dag_1].active = false;
-
-    int n0 = dag.size();
-    dag.push_back({v_C, v_A, v_D, {}, f_0, true});
-    int n1 = dag.size();
-    dag.push_back({v_C, v_D, v_B, {}, f_1, true});
-
-    face_to_dag[f_0] = n0;
-    face_to_dag[f_1] = n1;
-
-    dag[old_dag_0].children.push_back(n0);
-    dag[old_dag_0].children.push_back(n1);
-    
-    dag[old_dag_1].children.push_back(n0);
-    dag[old_dag_1].children.push_back(n1);
 }
 
 // Validation
@@ -552,13 +527,6 @@ std::array<int, 3> DCEL::create_supertriangle(const std::vector<glm::vec2>& poin
     int idx2 = add_vertex(v2);
 
     int face_idx = add_triangle(idx0, idx1, idx2);
-
-    dag.clear();
-    face_to_dag.clear();
-    face_to_dag.resize(1000000, -1);
-
-    dag.push_back({idx0, idx1, idx2, {}, face_idx, true});
-    face_to_dag[face_idx] = 0;
     
     return {idx0, idx1, idx2};
 }
