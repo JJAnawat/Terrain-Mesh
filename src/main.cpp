@@ -5,6 +5,7 @@
 
 #include "Camera.h"
 #include "Renderer.h"
+#include "Heightmap.h"
 #include "Geometry.h"
 #include "DCEL.h"
 #include "Delaunay.h"
@@ -16,35 +17,6 @@
 // Height map loading
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
-
-// std::vector<glm::vec3> vertices = {
-//     // Base quad (y = 0, on XY plane)
-//     glm::vec3(-0.5f, 0.0f, -0.5f),  // 0: back-left
-//     glm::vec3( 0.5f, 0.0f, -0.5f),  // 1: back-right
-//     glm::vec3( 0.5f, 0.0f,  0.5f),  // 2: front-right
-//     glm::vec3(-0.5f, 0.0f,  0.5f),  // 3: front-left
-    
-//     // Apex (pointing up along +Y)
-//     glm::vec3( 0.0f,  0.88f,  0.0f)  // 4: apex
-// };
- 
-// std::vector<unsigned int> indices = {
-//     // Bottom face (z = -0.5)
-//     0, 1, 2,
-//     0, 2, 3,
-    
-//     // Front face (y = -0.5)
-//     0, 4, 1,
-    
-//     // Right face (x = 0.5)
-//     1, 4, 2,
-    
-//     // Back face (y = 0.5)
-//     2, 4, 3,
-    
-//     // Left face (x = -0.5)
-//     3, 4, 0
-// };
 
 Camera* g_camera = nullptr;
 Renderer* g_renderer = nullptr;
@@ -73,28 +45,6 @@ void processInput(GLFWwindow* window) {
     }
 }
 
-// Delaunay test data
-std::vector<glm::vec3> generateTestTerrain(int gridWidth, int gridDepth) {
-    std::vector<glm::vec3> points;
-    
-    float widthExtent = 4.0f;
-    float depthExtent = 4.0f;
-
-    for (int x = 0; x < gridWidth; ++x) {
-        for (int z = 0; z < gridDepth; ++z) {
-            float px = (x / (float)(gridWidth - 1) - 0.5f) * widthExtent;
-            float pz = (z / (float)(gridDepth - 1) - 0.5f) * depthExtent;
-            
-            float py = 0.5f * std::sin(px * 1.5f) * std::cos(pz * 1.5f)        // Base rolling hills
-                     + 0.2f * std::sin(px * 3.5f + 1.0f) * std::cos(pz * 3.5f) // Mid-frequency details
-                     + 0.1f * std::sin(px * 8.0f);                             // High-frequency ridges
-            
-            points.push_back(glm::vec3(px, py, pz));
-        }
-    }
-    return points;
-}
-
 int main() {
     if (!glfwInit()) { std::cerr << "GLFW init failed\n"; return -1; }
 
@@ -111,12 +61,17 @@ int main() {
     glfwSetCursorPosCallback(window, mouseMoveCallback);
     glfwSetScrollCallback(window, scrollCallback);
 
-    // Testing Delaunay
-    std::vector<glm::vec3> testPoints  = generateTestTerrain(30, 30);
-    
+    Heightmap heightmap;
+
+    if(!heightmap.load("assets/test_heightmap.png"))
+        return -1;
+
+    // std::vector<glm::vec3> points = heightmap.generateTestTerrain(30, 30);
+    std::vector<glm::vec3> points = heightmap.importanceSample(500);
+
     DCEL dcel;
     Delaunay triangulator(dcel);
-    triangulator.build(testPoints);
+    triangulator.build(points);
 
     std::vector<glm::vec3> vertices;
     std::vector<unsigned int> indices;
