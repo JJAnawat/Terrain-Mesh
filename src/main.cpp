@@ -5,11 +5,13 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <chrono>
+#include <fstream>
 
 #include "Camera.h"
 #include "Renderer.h"
 #include "Heightmap.h"
-#include "Ruppert.h"
+#include "TerrainMesher.h"
 #include "Geometry.h"
 #include "DCEL.h"
 #include "Delaunay.h"
@@ -40,19 +42,27 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
         g_camera->onScroll(yOffset);
 }
 
-bool wireframeMode = false;
+void exportMeshToCSV(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& indices) {
+    // 1. Export Vertices
+    std::ofstream vFile("C:/JJ/Year3/Comp-Geo/terrain-mesh/output/vertices.csv");
+    vFile << "x,y,z\n";
+    for (const auto& v : verts) {
+        vFile << v.x << "," << v.y << "," << v.z << "\n";
+    }
+    vFile.close();
 
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    // Only toggle on the exact moment the key is pressed down
-    if (key == GLFW_KEY_F && action == GLFW_PRESS) 
-        wireframeMode = !wireframeMode;
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    if (key == GLFW_KEY_P && action == GLFW_PRESS)
-        if(g_camera)
-            g_camera->printState();
+    // 2. Export Triangles (Indices)
+    std::ofstream tFile("C:/JJ/Year3/Comp-Geo/terrain-mesh/output/triangles.csv");
+    tFile << "v0,v1,v2\n";
+    for (size_t i = 0; i < indices.size(); i += 3) {
+        tFile << indices[i] << "," << indices[i+1] << "," << indices[i+2] << "\n";
+    }
+    tFile.close();
+    
+    std::cout << "Mesh exported to vertices.csv and triangles.csv successfully!\n";
 }
 
+bool wireframeMode = false;
 std::mutex meshMutex;
 bool meshReadyToUpload = false;
 
@@ -65,6 +75,21 @@ std::atomic<bool> isRunning{true};
 std::atomic<bool> rebuildRequested{false};
 glm::vec3 requestedCameraPos;
 std::atomic<float> requestedZoom;
+
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    // Only toggle on the exact moment the key is pressed down
+    if (key == GLFW_KEY_F && action == GLFW_PRESS) 
+        wireframeMode = !wireframeMode;
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    if (key == GLFW_KEY_P && action == GLFW_PRESS)
+        if(g_camera)
+            g_camera->printState();
+    if (key == GLFW_KEY_C && action == GLFW_PRESS){
+        std::lock_guard<std::mutex> lock(meshMutex);
+        exportMeshToCSV(async_vertices, async_indices);
+    }
+}
 
 int main() {
     if (!glfwInit()) { std::cerr << "GLFW init failed\n"; return -1; }
@@ -84,17 +109,14 @@ int main() {
     glfwSetKeyCallback(window, keyCallback);
 
     Heightmap heightmap(4.0f, 4.0f, 1.0f);
-    if(!heightmap.load("assets/test_heightmap.png"))
-        return -1;
+    if(!heightmap.load("assets/rocky_land.png"))
+        return -1;  
 
     DCEL dcel;
     Delaunay triangulator(dcel);
-    Ruppert lod(dcel, triangulator, heightmap);
+    TerrainMesher mesher(dcel, triangulator, heightmap);
 
-    std::vector<glm::vec3> baseCorners = {
-        {-5.0f,  0.0f, -5.0f}, {5.0f,  0.0f, -5.0f},
-        { 5.0f,  0.0f,  5.0f}, {-5.0f, 0.0f,  5.0f}
-    };
+    std::vector<glm::vec3> baseCorners = heightmap.getFourCorners();
 
     std::thread lodThread([&](){
         while(isRunning){
@@ -103,7 +125,12 @@ int main() {
                 float currentFov = requestedZoom;
                 rebuildRequested = false;
 
-                lod.rebuild_mesh(camPos, currentFov, baseCorners, 1000);
+                auto start_time = std::chrono::high_resolution_clock::now();
+                mesher.rebuild_mesh(camPos, currentFov, 10000, 1, baseCorners);
+                auto end_time = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double, std::milli> time_taken = end_time - start_time;
+
+                std::cout << "Mesh generated in: " << time_taken.count() << " ms\n";
 
                 std::vector<glm::vec3> local_vertices;
                 std::vector<unsigned int> local_indices;
@@ -111,17 +138,33 @@ int main() {
                 for(const auto& v: dcel.vertices)
                     local_vertices.push_back(v.pos);
                 
+                float halfWidth = heightmap.widthExtent * 0.5f;
+                float halfDepth = heightmap.depthExtent * 0.5f;
+                
+                float epsilon = 0.1f; 
+
+                auto is_super_vertex = [&](const glm::vec3& p) {
+                    return (p.x < -halfWidth - epsilon || p.x > halfWidth + epsilon ||
+                            p.z < -halfDepth - epsilon || p.z > halfDepth + epsilon);
+                };
+
                 auto triangles = dcel.get_triangles();
-                for(const auto& tri: triangles){
-                    if(tri[0] < 3 || tri[1] < 3 || tri[2] < 3) 
-                        continue;
+                for(const auto& tri : triangles) {
+                    glm::vec3 p0 = dcel.vertices[tri[0]].pos;
+                    glm::vec3 p1 = dcel.vertices[tri[1]].pos;
+                    glm::vec3 p2 = dcel.vertices[tri[2]].pos;
+
+                    if(is_super_vertex(p0) || is_super_vertex(p1) || is_super_vertex(p2)) {
+                        continue; 
+                    }
+                    
                     local_indices.push_back(tri[0]);
                     local_indices.push_back(tri[1]);
                     local_indices.push_back(tri[2]);
                 }
 
                 std::vector<glm::vec3> local_normals = computeVertexNormals(local_vertices, local_indices);
-                std::vector<glm::vec3> local_colors = generateElevationColors(local_vertices);
+                std::vector<glm::vec3> local_colors = generateWhiteColors(local_vertices);
 
                 {
                     std::lock_guard<std::mutex> lock(meshMutex);
@@ -143,7 +186,7 @@ int main() {
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     float lastZoom = camera.Zoom;
-    float zoomFovThreshold = 2.0f;
+    float zoomFovThreshold = 1000.0f;
     rebuildRequested = true;
 
     while (!glfwWindowShouldClose(window)) {

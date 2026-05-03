@@ -41,8 +41,8 @@ inline std::vector<glm::vec3> computeVertexNormals(
     return normals;
 }
 
-inline std::vector<glm::vec3> generateWhiteColors(size_t vertexCount) {
-    return std::vector<glm::vec3>(vertexCount, glm::vec3(1.0f, 1.0f, 1.0f));
+inline std::vector<glm::vec3> generateWhiteColors(const std::vector<glm::vec3>& vertices) {
+    return std::vector<glm::vec3>(vertices.size(), glm::vec3(1.0f, 1.0f, 1.0f));
 }
 
 inline std::vector<glm::vec3> generateElevationColors(const std::vector<glm::vec3>& vertices) {

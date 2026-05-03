@@ -17,9 +17,9 @@ add_executable(TerrainMesh
     src/Heightmap.cpp
     src/DCEL.cpp
     src/Delaunay.cpp
-    src/Ruppert.cpp
     src/Renderer.cpp
     src/Camera.cpp
+    src/TerrainMesher.cpp
 )
 
 target_link_libraries(TerrainMesh PRIVATE

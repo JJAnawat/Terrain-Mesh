@@ -260,46 +260,80 @@ double DCEL::get_min_weight(glm::vec2 p, int v0, int v1, int v2) const {
     return std::min({w0, w1, w2});
 }
 
-int DCEL::locate_point(glm::vec2 p, int start_face) const {    
-    if (faces.empty()) return -1;
-    
-    int curr_face = start_face;
-    if (curr_face < 0 || curr_face >= faces.size() || faces[curr_face].is_outer) {
-        curr_face = 0; // Fallback to an arbitrary valid face
-    }
+// Helper function to check if point p is inside triangle (v0, v1, v2)
+bool DCEL::point_in_triangle(glm::vec2 p, int v0, int v1, int v2) const {
+    auto edge_side = [&](int a_idx, int b_idx) {
+        glm::vec2 a = glm::vec2(vertices[a_idx].pos.x, vertices[a_idx].pos.z);
+        glm::vec2 b = glm::vec2(vertices[b_idx].pos.x, vertices[b_idx].pos.z);
+        return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+    };
+    // Returns true if p is to the left of (or on) all three directed edges
+    return edge_side(v0, v1) >= -1e-5f && 
+           edge_side(v1, v2) >= -1e-5f && 
+           edge_side(v2, v0) >= -1e-5f;
+}
 
-    // Directed Edge Walk
-    while (true) {
+// The master toggle function
+int DCEL::locate_point(glm::vec2 p, int start_face) const {
+    if (enable_dag && !dag.empty()) {
+        return locate_point_dag(p);
+    } else {
+        return locate_point_walk(p, start_face);
+    }
+}
+
+// O(log n) DAG Traversal
+int DCEL::locate_point_dag(glm::vec2 p) const {
+    int curr_node = 0; // Start at root (supertriangle)
+    
+    // Iterate down the tree until we hit an active leaf node
+    while (!dag[curr_node].active) {
+        bool found_child = false;
+        for (int child_idx : dag[curr_node].children) {
+            if (point_in_triangle(p, dag[child_idx].v0, dag[child_idx].v1, dag[child_idx].v2)) {
+                curr_node = child_idx;
+                found_child = true;
+                break;
+            }
+        }
+        // Fallback if precision issues cause point to slip through cracks
+        if (!found_child) return dag[curr_node].children[0]; 
+    }
+    return dag[curr_node].dcel_face;
+}
+
+// O(1) ~ O(sqrt N) Directed Edge Walk
+int DCEL::locate_point_walk(glm::vec2 p, int start_face) const {
+    int curr_face = start_face;
+    if (curr_face < 0 || curr_face >= faces.size() || faces[curr_face].is_outer) curr_face = 0;
+
+    int max_steps = faces.size() + 100; 
+    while (max_steps-- > 0) {
         auto [he0, he1, he2] = face_half_edges(curr_face);
         
-        // Helper lambda for 2D cross product (orientation)
         auto edge_side = [&](int he_idx) {
             glm::vec2 a = glm::vec2(vertices[half_edges[he_idx].origin].pos.x, vertices[half_edges[he_idx].origin].pos.z);
             glm::vec2 b = glm::vec2(vertices[half_edges[half_edges[he_idx].next].origin].pos.x, vertices[half_edges[half_edges[he_idx].next].origin].pos.z);
             return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
         };
 
-        // If the point is to the right of an edge, it must be in the neighboring triangle
         if (edge_side(he0) < -1e-7f) {
             int twin = half_edges[he0].twin;
-            if (twin == -1) return curr_face; // Reached boundary
+            if (twin == -1) return curr_face;
             curr_face = half_edges[twin].face;
-        } 
-        else if (edge_side(he1) < -1e-7f) {
+        } else if (edge_side(he1) < -1e-7f) {
             int twin = half_edges[he1].twin;
             if (twin == -1) return curr_face;
             curr_face = half_edges[twin].face;
-        } 
-        else if (edge_side(he2) < -1e-7f) {
+        } else if (edge_side(he2) < -1e-7f) {
             int twin = half_edges[he2].twin;
             if (twin == -1) return curr_face;
             curr_face = half_edges[twin].face;
-        } 
-        else {
-            // Point is to the left (or exactly on) all 3 edges -> We found the containing face!
-            return curr_face;
+        } else {
+            return curr_face; // Point is inside!
         }
     }
+    return curr_face;
 }
 
 // Mesh
@@ -373,6 +407,26 @@ int DCEL::insert_point_in_face(int face_idx, glm::vec2 p, float z) {
     vertices[v0].half_edge = he0;
     vertices[v1].half_edge = he1;
     vertices[v2].half_edge = he2;
+    
+    if (enable_dag) {
+        int old_dag_idx = face_to_dag[f0];
+        dag[old_dag_idx].active = false;
+
+        int n0 = dag.size();
+        dag.push_back({v0, v1, v_new, {}, f0, true});
+        int n1 = dag.size();
+        dag.push_back({v1, v2, v_new, {}, f1, true});
+        int n2 = dag.size();
+        dag.push_back({v2, v0, v_new, {}, f2, true});
+
+        face_to_dag[f0] = n0;
+        face_to_dag[f1] = n1;
+        face_to_dag[f2] = n2;
+
+        dag[old_dag_idx].children.push_back(n0);
+        dag[old_dag_idx].children.push_back(n1);
+        dag[old_dag_idx].children.push_back(n2);
+    }
 
     return v_new;
 }
@@ -450,6 +504,28 @@ void DCEL::flip_edge(int half_edge_idx) {
     vertices[v_B].half_edge = e1; // B -> C
     vertices[v_C].half_edge = e2; // C -> A
     vertices[v_D].half_edge = t2; // D -> B
+
+    if (enable_dag) {
+        int old_dag_0 = face_to_dag[f_0];
+        int old_dag_1 = face_to_dag[f_1];
+
+        dag[old_dag_0].active = false;
+        dag[old_dag_1].active = false;
+
+        int n0 = dag.size();
+        dag.push_back({v_C, v_A, v_D, {}, f_0, true});
+        int n1 = dag.size();
+        dag.push_back({v_C, v_D, v_B, {}, f_1, true});
+
+        face_to_dag[f_0] = n0;
+        face_to_dag[f_1] = n1;
+
+        dag[old_dag_0].children.push_back(n0);
+        dag[old_dag_0].children.push_back(n1);
+
+        dag[old_dag_1].children.push_back(n0);
+        dag[old_dag_1].children.push_back(n1);
+    }
 }
 
 // Validation
@@ -527,6 +603,15 @@ std::array<int, 3> DCEL::create_supertriangle(const std::vector<glm::vec2>& poin
     int idx2 = add_vertex(v2);
 
     int face_idx = add_triangle(idx0, idx1, idx2);
+
+    if (enable_dag){
+        dag.clear();
+        face_to_dag.clear();
+        face_to_dag.resize(1000000, -1);
+
+        dag.push_back({idx0, idx1, idx2, {}, face_idx, true});
+        face_to_dag[face_idx] = 0;
+    }
     
     return {idx0, idx1, idx2};
 }

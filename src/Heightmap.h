@@ -17,13 +17,16 @@ class Heightmap {
         float getHeight(int x, int y) const;
         float getGradient(int x, int y) const;
         float bilinearInterpolate(float x, float y) const;
+        std::vector<glm::vec3> getFourCorners() const;
         
+        std::vector<glm::vec3> uniformSample(int numSamples);
         std::vector<glm::vec3> importanceSample(int numSamples);
         std::vector<glm::vec3> generateTestTerrain(int gridWidth, int gridDepth);
 
-    private:
-        int width, height;
         float widthExtent = 4.0f, depthExtent = 4.0f, maxHeight = 1.0f;
+        int width, height;
+
+    private:
 
         std::vector<float> heightData;
         std::vector<float> gradientMagnitude;

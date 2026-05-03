@@ -29,11 +29,21 @@ struct Face {
     bool is_outer;   // true if this is the outer (infinite) face
 };
 
+struct DagNode {
+    int v0, v1, v2;            // The 3 vertices that made up this triangle geometrically
+    std::vector<int> children; // Indices to child DAG nodes
+    int dcel_face;             // Corresponding active face in DCEL
+    bool active;               // True if this triangle still exists in the current mesh
+};
+
 class DCEL {
 public:
     std::vector<Vertex> vertices;
     std::vector<HalfEdge> half_edges;
     std::vector<Face> faces;
+    std::vector<DagNode> dag;
+    std::vector<int> face_to_dag; // Maps a DCEL face_idx to its current active dag_idx
+    bool enable_dag = false;
 
     // ========================================================================
     // CONSTRUCTION & TOPOLOGY
@@ -107,6 +117,10 @@ public:
     /// Starts from a given face and walks the mesh until finding the containing triangle.
     /// Returns face index, or -1 if p is outside the mesh.
     int locate_point(glm::vec2 p, int start_face = 0) const;
+
+    int locate_point_dag(glm::vec2 p) const;
+    int locate_point_walk(glm::vec2 p, int start_face) const;
+    bool point_in_triangle(glm::vec2 p, int v0, int v1, int v2) const;
 
     // ========================================================================
     // MESH MODIFICATION

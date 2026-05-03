@@ -26,9 +26,21 @@ bool Heightmap::load(const std::string& filepath){
         return false;
     }
 
+    unsigned char min_pixel = 255;
+    unsigned char max_pixel = 0;
+    for(int i = 0; i < width * height; i++) {
+        min_pixel = std::min(min_pixel, imageData[i]);
+        max_pixel = std::max(max_pixel, imageData[i]);
+    }
+
+    // Prevent divide-by-zero if the image is a solid color
+    float range = (max_pixel > min_pixel) ? (float)(max_pixel - min_pixel) : 1.0f;
+
     heightData.resize(width * height);
-    for(int i=0;i<width * height; i++)
-        heightData[i] = imageData[i] / 255.0f;
+    for(int i = 0; i < width * height; i++) {
+        heightData[i] = (imageData[i] - min_pixel) / range;
+        assert(heightData[i] >= 0 && heightData[i] <= 1);
+    }
 
     stbi_image_free(imageData);
 
@@ -101,6 +113,61 @@ float Heightmap::bilinearInterpolate(float x, float y) const {
     float h1 = h01 * (1 - fx) + h11 * fx;
     
     return h0 * (1 - fy) + h1 * fy;
+}
+
+std::vector<glm::vec3> Heightmap::getFourCorners() const {
+    std::vector<glm::vec3> corners;
+    
+    // The four normalized (u, v) corners of the map
+    float u_coords[4] = {0.0f, 1.0f, 1.0f, 0.0f};
+    float v_coords[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+
+    for (int i = 0; i < 4; i++) {
+        float u = u_coords[i];
+        float v = v_coords[i];
+
+        // 1. Convert normalized [0,1] to World Space [X, Z]
+        float worldX = (u - 0.5f) * widthExtent;
+        float worldZ = (v - 0.5f) * depthExtent;
+
+        // 2. Sample true Y from the heightmap image
+        // bilinearInterpolate returns 0.0 to 1.0, so multiply by maxHeight
+        float worldY = bilinearInterpolate(u, v) * maxHeight;
+
+        corners.push_back(glm::vec3(worldX, worldY, worldZ));
+    }
+
+    return corners;
+}
+
+std::vector<glm::vec3> Heightmap::uniformSample(int numSamples) {
+    std::vector<glm::vec3> sampledPoints;
+    
+    int pointsPerAxis = std::round(std::sqrt(numSamples));
+    
+    if (pointsPerAxis < 2) {
+        pointsPerAxis = 2; 
+    }
+
+    sampledPoints.reserve(pointsPerAxis * pointsPerAxis);
+
+    for (int z = 0; z < pointsPerAxis; ++z) {
+        for (int x = 0; x < pointsPerAxis; ++x) {
+            
+            float normalizedX = (float)x / (pointsPerAxis - 1);
+            float normalizedZ = (float)z / (pointsPerAxis - 1);
+
+            float worldX = (normalizedX - 0.5f) * widthExtent;
+            float worldZ = (normalizedZ - 0.5f) * depthExtent;
+
+            float heightSample = bilinearInterpolate(normalizedX, normalizedZ);
+            float worldY = heightSample * maxHeight;
+
+            sampledPoints.push_back(glm::vec3(worldX, worldY, worldZ));
+        }
+    }
+    
+    return sampledPoints;
 }
 
 std::vector<glm::vec3> Heightmap::importanceSample(int numSamples) {

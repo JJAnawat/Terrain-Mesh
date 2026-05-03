@@ -1,6 +1,8 @@
 # Build output
 build/
 
+output/
+
 # vcpkg installed packages (restored automatically)
 vcpkg_installed/
 
