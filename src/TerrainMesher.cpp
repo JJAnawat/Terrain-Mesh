@@ -19,22 +19,27 @@ void TerrainMesher::rebuild_mesh(const glm::vec3& camera_pos, float fov, int max
     if (algo == 0) {
         generate_baseline(max_vertices, base_corners);
     } 
-    else if (algo == 1) {
-        generate_sobel(max_vertices, base_corners);
+    else if (algo == 1){
+        dcel.enable_dag=true;
+        generate_baseline(max_vertices, base_corners);
     }
     else if (algo == 2) {
-        generate_sobel_dag(max_vertices, base_corners);
+        generate_sobel(max_vertices, base_corners);
     }
     else if (algo == 3) {
+        dcel.enable_dag=true;
+        generate_sobel(max_vertices, base_corners);
+    }
+    else if (algo == 4) {
         generate_ruppert(camera_pos, fov, max_vertices, base_corners);
     } 
-    else if (algo == 4) {
+    else if (algo == 5) {
         generate_garland(camera_pos, fov, max_vertices, base_corners);
     }
 }
 
 // ==========================================
-// 0. BASELINE ALGORITHM (Uniform Random)
+// BASELINE ALGORITHM (Uniform Random)
 // ==========================================
 void TerrainMesher::generate_baseline(int max_vertices, const std::vector<glm::vec3>& base_corners) {
     // Generate purely random uniform points
@@ -50,7 +55,7 @@ void TerrainMesher::generate_baseline(int max_vertices, const std::vector<glm::v
 }
 
 // ==========================================
-// 1. SOBEL Importance Sampling
+// SOBEL Importance Sampling
 // ==========================================
 void TerrainMesher::generate_sobel(int max_vertices, const std::vector<glm::vec3>& base_corners) {
     int points_to_sample = max_vertices - base_corners.size();
@@ -65,23 +70,7 @@ void TerrainMesher::generate_sobel(int max_vertices, const std::vector<glm::vec3
 }
 
 // ==========================================
-// 2. SOBEL + DAG
-// ==========================================
-void TerrainMesher::generate_sobel_dag(int max_vertices, const std::vector<glm::vec3> & base_corners) {
-    int points_to_sample = max_vertices - base_corners.size();
-    std::vector<glm::vec3> sampled_points = heightmap.importanceSample(points_to_sample);
-
-    std::vector<glm::vec3> all_points = base_corners;
-
-    all_points.insert(all_points.end(), sampled_points.begin(), sampled_points.end());
-
-    dcel.enable_dag = true; 
-    triangulator.build(all_points);
-}
-
-
-// ==========================================
-// 3. RUPPERT'S ALGORITHM
+// RUPPERT'S ALGORITHM
 // ==========================================
 void TerrainMesher::generate_ruppert(const glm::vec3& camera_pos, float fov, int max_vertices, const std::vector<glm::vec3>& base_corners) {
     // Clear queue
@@ -195,7 +184,7 @@ void TerrainMesher::queue_ruppert_triangles(int vertex_idx, const glm::vec3& cam
 }
 
 // ==========================================
-// 4. GARLAND'S ALGORITHM (Top-Down Greedy)
+// GARLAND'S ALGORITHM (Top-Down Greedy)
 // ==========================================
 void TerrainMesher::generate_garland(const glm::vec3& camera_pos, float fov, int max_vertices, const std::vector<glm::vec3>& base_corners) {
     error_queue = std::priority_queue<GarlandTriangle>();

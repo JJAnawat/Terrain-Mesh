@@ -45,7 +45,6 @@ private:
     // The algorithms
     void generate_baseline(int max_vertices, const std::vector<glm::vec3>& base_corners);
     void generate_sobel(int max_vertices, const std::vector<glm::vec3>& base_corners);
-    void generate_sobel_dag(int max_vertices, const std::vector<glm::vec3> & base_corners);
     void generate_ruppert(const glm::vec3& camera_pos, float fov, int max_vertices, const std::vector<glm::vec3>& base_corners);
     void generate_garland(const glm::vec3& camera_pos, float fov, int max_vertices, const std::vector<glm::vec3>& base_corners);
 

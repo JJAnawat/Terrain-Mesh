@@ -126,7 +126,7 @@ int main() {
                 rebuildRequested = false;
 
                 auto start_time = std::chrono::high_resolution_clock::now();
-                mesher.rebuild_mesh(camPos, currentFov, 10000, 1, baseCorners);
+                mesher.rebuild_mesh(camPos, currentFov, 100000, 2, baseCorners);
                 auto end_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double, std::milli> time_taken = end_time - start_time;
 

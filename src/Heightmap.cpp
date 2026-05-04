@@ -171,7 +171,7 @@ std::vector<glm::vec3> Heightmap::uniformSample(int numSamples) {
 }
 
 std::vector<glm::vec3> Heightmap::importanceSample(int numSamples) {
-    // Normalize gradient to [0, 1]
+    // 1. Normalize gradient and build CDF
     float maxGrad = *std::max_element(gradientMagnitude.begin(), gradientMagnitude.end());
     if (maxGrad == 0.0f) maxGrad = 1.0f;
     
@@ -180,25 +180,38 @@ std::vector<glm::vec3> Heightmap::importanceSample(int numSamples) {
         probabilities[i] = gradientMagnitude[i] / maxGrad;
     }
     
-    // Build CDF
     std::vector<float> cdf(width * height + 1, 0.0f);
     for (int i = 0; i < width * height; i++) {
         cdf[i + 1] = cdf[i] + probabilities[i];
     }
     
-    // Sample
+    // 2. Sample without Replacement
     std::vector<glm::vec3> sampledPoints;
     std::mt19937 rng(42);
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
     
-    for (int s = 0; s < numSamples; s++) {
+    std::vector<bool> visited(width * height, false);
+    
+    int actual_samples = 0;
+    int max_attempts = numSamples * 20;
+    int attempts = 0;
+
+    while (actual_samples < numSamples && attempts < max_attempts) {
+        attempts++;
         float u = dist(rng) * cdf[width * height];
         
         int idx = std::lower_bound(cdf.begin(), cdf.end(), u) - cdf.begin() - 1;
         idx = std::max(0, std::min(idx, width * height - 1));
         
-        int py = idx / width; // [0, height-1]
-        int px = idx % width; // [0, width -1]
+        if (visited[idx]) continue; 
+        
+        // Mark as visited and increment our valid sample count
+        visited[idx] = true;
+        actual_samples++;
+
+        // Convert to world coordinates
+        int py = idx / width; 
+        int px = idx % width; 
 
         float normalizedX = (px + 0.5f) / width;
         float normalizedZ = (py + 0.5f) / height;
@@ -212,6 +225,10 @@ std::vector<glm::vec3> Heightmap::importanceSample(int numSamples) {
         sampledPoints.push_back(glm::vec3(worldX, worldY, worldZ));
     }
     
+    if (actual_samples < numSamples) {
+        std::cout << "Warning: Could only find " << actual_samples << " unique points!\n";
+    }
+
     return sampledPoints;
 }
 
