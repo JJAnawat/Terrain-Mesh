@@ -20,12 +20,12 @@ struct RuppertTriangle {
 // Priority Queue Struct for Garland's Algorithm
 struct GarlandTriangle {
     int face_idx;
-    float max_error;
+    float priority;
     glm::vec2 max_error_norm_pt; // The normalized [0,1] XZ coordinate of the worst error
     int v0, v1, v2;
 
     bool operator<(const GarlandTriangle& other) const {
-        return max_error < other.max_error;
+        return priority < other.priority;
     }
 };
 

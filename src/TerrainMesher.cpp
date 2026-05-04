@@ -10,31 +10,36 @@ void TerrainMesher::rebuild_mesh(const glm::vec3& camera_pos, float fov, int max
     dcel.vertices.clear();
     dcel.half_edges.clear();
     dcel.faces.clear();
+    dcel.face_to_dag.clear();
     
-    dcel.vertices.reserve(max_vertices);
-    dcel.faces.reserve(max_vertices * 2);
-    dcel.half_edges.reserve(max_vertices * 6);
+    dcel.reserve_memory(max_vertices);
 
     // 2. Route to the correct algorithm
-    if (algo == 0) {
-        generate_baseline(max_vertices, base_corners);
-    } 
-    else if (algo == 1){
-        dcel.enable_dag=true;
-        generate_baseline(max_vertices, base_corners);
-    }
-    else if (algo == 2) {
-        generate_sobel(max_vertices, base_corners);
-    }
-    else if (algo == 3) {
-        dcel.enable_dag=true;
-        generate_sobel(max_vertices, base_corners);
-    }
-    else if (algo == 4) {
-        generate_ruppert(camera_pos, fov, max_vertices, base_corners);
-    } 
-    else if (algo == 5) {
-        generate_garland(camera_pos, fov, max_vertices, base_corners);
+    switch(algo){
+        case 0:
+            generate_baseline(max_vertices, base_corners);
+            break;
+        case 1:
+            dcel.enable_dag=true;
+            generate_baseline(max_vertices, base_corners);
+            break;
+        case 2:
+            generate_sobel(max_vertices, base_corners);
+            break;
+        case 3:
+            dcel.enable_dag=true;
+            generate_sobel(max_vertices, base_corners);
+            break;
+        case 4:
+            generate_garland(camera_pos, fov, max_vertices, base_corners);
+            break;
+        case 5:
+            dcel.enable_dag=true;
+            generate_garland(camera_pos, fov, max_vertices, base_corners);
+            break;
+        default: 
+            std::cerr << "Invalid algorithm choice!\n";
+            break;
     }
 }
 
@@ -191,41 +196,60 @@ void TerrainMesher::generate_garland(const glm::vec3& camera_pos, float fov, int
 
     triangulator.build(base_corners);
 
-    for (int i = 0; i < dcel.faces.size(); i++) {
+    // Evaluate initial valid faces
+    for (size_t i = 0; i < dcel.faces.size(); ++i) {
         if (!dcel.faces[i].is_outer) {
-            error_queue.push(calculate_garland_error(i, camera_pos, fov));
+            error_queue.push(calculate_garland_error(static_cast<int>(i), camera_pos, fov));
         }
     }
 
-    int points_inserted = base_corners.size();
-    float error_threshold = 0.5f; // Stop if the worst error is tiny
+    int points_inserted = static_cast<int>(base_corners.size());
+    const float error_threshold = 0.0f; // modify this if want to stop early
     
     while (!error_queue.empty() && points_inserted < max_vertices) {
         GarlandTriangle worst = error_queue.top();
         error_queue.pop();
 
-        // Ghost check
-        std::array<int, 3> curr_v = dcel.face_vertices(worst.face_idx);
+        // Check
+        if(worst.face_idx >= dcel.faces.size() || dcel.faces[worst.face_idx].is_outer || worst.face_idx < 0){
+            continue; // Face was removed
+        }
+
+        // Lazy Evaluation: Verify the face hasn't been structurally altered by Delaunay edge flips
+        auto curr_v = dcel.face_vertices(worst.face_idx);
         std::array<int, 3> queued_v = {worst.v0, worst.v1, worst.v2};
+        
         std::sort(curr_v.begin(), curr_v.end());
         std::sort(queued_v.begin(), queued_v.end());
-        if (curr_v != queued_v) continue;
+        
+        if (curr_v != queued_v) {
+            continue; // Stale data, discard
+        }
 
-        if (worst.max_error < error_threshold) break;
+        // Met quality threshold
+        if (worst.priority < error_threshold) {
+            break; 
+        }
 
+        // Calculate world space insertion point
         float world_x = (worst.max_error_norm_pt.x - 0.5f) * heightmap.widthExtent;
         float world_z = (worst.max_error_norm_pt.y - 0.5f) * heightmap.depthExtent;
         float true_elevation = heightmap.bilinearInterpolate(worst.max_error_norm_pt.x, worst.max_error_norm_pt.y) * heightmap.maxHeight;
 
-        int v_new = triangulator.insert_point(glm::vec3(world_x, true_elevation, world_z), worst.face_idx);
-        if (v_new == -1) continue;
+        glm::vec3 insertion_pt(world_x, true_elevation, world_z);
+        int v_new = triangulator.insert_point(insertion_pt, worst.face_idx);
+        
+        if (v_new == -1) {
+            continue; // Insertion failed
+        }
             
         points_inserted++;
 
+        // Re-evaluate newly formed incident triangles
         std::vector<int> incident_hes = dcel.vertex_half_edges(v_new);
         for (int he : incident_hes) {
             int f = dcel.half_edges[he].face;
-            if (!dcel.faces[f].is_outer) {
+            if (!dcel.faces[f].is_outer && f < dcel.faces.size() && f >= 0) {
                 error_queue.push(calculate_garland_error(f, camera_pos, fov));
             }
         }
@@ -234,57 +258,57 @@ void TerrainMesher::generate_garland(const glm::vec3& camera_pos, float fov, int
 
 GarlandTriangle TerrainMesher::calculate_garland_error(int face_idx, const glm::vec3& camera_pos, float fov) {
     auto [v0, v1, v2] = dcel.face_vertices(face_idx);
-    glm::vec3 p0 = dcel.vertices[v0].pos;
-    glm::vec3 p1 = dcel.vertices[v1].pos;
-    glm::vec3 p2 = dcel.vertices[v2].pos;
+    const glm::vec3& p0 = dcel.vertices[v0].pos;
+    const glm::vec3& p1 = dcel.vertices[v1].pos;
+    const glm::vec3& p2 = dcel.vertices[v2].pos;
 
-    // 1. Find 2D Bounding Box in World Space (XZ plane)
-    float min_x = std::min({p0.x, p1.x, p2.x});
-    float max_x = std::max({p0.x, p1.x, p2.x});
-    float min_z = std::min({p0.z, p1.z, p2.z});
-    float max_z = std::max({p0.z, p1.z, p2.z});
+    // 1. Find 2D Bounding Box and convert directly to Normalized Space [0, 1]
+    auto world_to_norm_x = [&](float wx) { return std::clamp((wx / heightmap.widthExtent) + 0.5f, 0.0f, 1.0f); };
+    auto world_to_norm_z = [&](float wz) { return std::clamp((wz / heightmap.depthExtent) + 0.5f, 0.0f, 1.0f); };
 
-    // 2. Convert to Normalized [0, 1] Space to match heightmap pixels
-    float n_min_x = std::clamp((min_x / heightmap.widthExtent) + 0.5f, 0.0f, 1.0f);
-    float n_max_x = std::clamp((max_x / heightmap.widthExtent) + 0.5f, 0.0f, 1.0f);
-    float n_min_z = std::clamp((min_z / heightmap.depthExtent) + 0.5f, 0.0f, 1.0f);
-    float n_max_z = std::clamp((max_z / heightmap.depthExtent) + 0.5f, 0.0f, 1.0f);
+    float n_min_x = world_to_norm_x(std::min({p0.x, p1.x, p2.x}));
+    float n_max_x = world_to_norm_x(std::max({p0.x, p1.x, p2.x}));
+    float n_min_z = world_to_norm_z(std::min({p0.z, p1.z, p2.z}));
+    float n_max_z = world_to_norm_z(std::max({p0.z, p1.z, p2.z}));
 
-    int px_min = n_min_x * (heightmap.width - 1);
-    int px_max = n_max_x * (heightmap.width - 1);
-    int pz_min = n_min_z * (heightmap.height - 1);
-    int pz_max = n_max_z * (heightmap.height - 1);
+    int px_min = static_cast<int>(n_min_x * (heightmap.width - 1));
+    int px_max = static_cast<int>(n_max_x * (heightmap.width - 1));
+    int pz_min = static_cast<int>(n_min_z * (heightmap.height - 1));
+    int pz_max = static_cast<int>(n_max_z * (heightmap.height - 1));
 
-    // Barycentric denominator 
+    // 2. Barycentric Denominator Precomputation
     float denom = (p1.z - p2.z) * (p0.x - p2.x) + (p2.x - p1.x) * (p0.z - p2.z);
     if (std::abs(denom) < 1e-6f) {
-        return {face_idx, 0.0f, glm::vec2(0.5f, 0.5f), v0, v1, v2}; // Degenerate
+        return {face_idx, 0.0f, glm::vec2(0.5f, 0.5f), v0, v1, v2}; // Degenerate face
     }
+    
+    // Cache inverse denominator to replace expensive divisions in the inner loop with multiplication
+    const float inv_denom = 1.0f / denom;
 
     float max_err = -1.0f;
     glm::vec2 worst_norm_pt(0.5f, 0.5f);
     glm::vec3 worst_world_pt(p0);
 
-    // Optimization: If the triangle covers the whole map, skip some pixels to go faster
-    int step = ((px_max - px_min) * (pz_max - pz_min) > 10000) ? 2 : 1;
+    // Adaptive step size based on bounding box pixel area
+    int area_pixels = (px_max - px_min) * (pz_max - pz_min);
+    int step = (area_pixels > 10000) ? 2 : 1;
 
     // 3. Scan the bounding box
     for (int z = pz_min; z <= pz_max; z += step) {
+        float nz = static_cast<float>(z) / (heightmap.height - 1);
+        float wz = (nz - 0.5f) * heightmap.depthExtent;
+
         for (int x = px_min; x <= px_max; x += step) {
-            
-            float nx = (float)x / (heightmap.width - 1);
-            float nz = (float)z / (heightmap.height - 1);
-
+            float nx = static_cast<float>(x) / (heightmap.width - 1);
             float wx = (nx - 0.5f) * heightmap.widthExtent;
-            float wz = (nz - 0.5f) * heightmap.depthExtent;
 
-            // Barycentric Test 
-            float w0 = ((p1.z - p2.z) * (wx - p2.x) + (p2.x - p1.x) * (wz - p2.z)) / denom;
-            float w1 = ((p2.z - p0.z) * (wx - p2.x) + (p0.x - p2.x) * (wz - p2.z)) / denom;
+            // Barycentric edge functions
+            float w0 = ((p1.z - p2.z) * (wx - p2.x) + (p2.x - p1.x) * (wz - p2.z)) * inv_denom;
+            float w1 = ((p2.z - p0.z) * (wx - p2.x) + (p0.x - p2.x) * (wz - p2.z)) * inv_denom;
             float w2 = 1.0f - w0 - w1;
 
-            // If weights are positive, the pixel is INSIDE the triangle
-            if (w0 >= 0.0f && w1 >= 0.0f && w2 >= 0.0f) {
+            // Epsilon check (-1e-4f) prevents floating point errors from discarding pixels precisely on the triangle edges
+            if (w0 >= -1e-4f && w1 >= -1e-4f && w2 >= -1e-4f) {
                 float interp_y = w0 * p0.y + w1 * p1.y + w2 * p2.y;
                 float true_y = heightmap.getHeight(x, z) * heightmap.maxHeight;
                 
@@ -298,12 +322,9 @@ GarlandTriangle TerrainMesher::calculate_garland_error(int face_idx, const glm::
             }
         }
     }
-
-    float dist = glm::distance(camera_pos, worst_world_pt);
-    float fov_rad = glm::radians(fov);
-    float eff_dist = std::max(dist * std::tan(fov_rad / 2.0f), 0.1f);
-    
-    float priority = (max_err * 50.0f) / eff_dist; 
+ 
+    // 4. Geometric Priority
+    float priority = max_err; 
 
     return {face_idx, priority, worst_norm_pt, v0, v1, v2};
 }

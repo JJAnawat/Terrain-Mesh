@@ -607,7 +607,7 @@ std::array<int, 3> DCEL::create_supertriangle(const std::vector<glm::vec2>& poin
     if (enable_dag){
         dag.clear();
         face_to_dag.clear();
-        face_to_dag.resize(1000000, -1);
+        face_to_dag.resize(100000000, -1);
 
         dag.push_back({idx0, idx1, idx2, {}, face_idx, true});
         face_to_dag[face_idx] = 0;

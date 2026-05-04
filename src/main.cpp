@@ -126,7 +126,7 @@ int main() {
                 rebuildRequested = false;
 
                 auto start_time = std::chrono::high_resolution_clock::now();
-                mesher.rebuild_mesh(camPos, currentFov, 100000, 2, baseCorners);
+                mesher.rebuild_mesh(camPos, currentFov, 1000, 4, baseCorners); // Only algo 0-4 is working right now
                 auto end_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double, std::milli> time_taken = end_time - start_time;
 
@@ -200,6 +200,12 @@ int main() {
         
         int width, height;
         glfwGetWindowSize(window, &width, &height);
+
+        if(width ==0 || height == 0){
+            glfwWaitEvents();
+            continue;
+        }
+
         float aspect = (float)width / height;
 
         // Request a mesh
