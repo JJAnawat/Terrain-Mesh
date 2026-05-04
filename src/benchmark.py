@@ -138,8 +138,9 @@ fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 img_extent = [-WIDTH_EXTENT/2, WIDTH_EXTENT/2, -DEPTH_EXTENT/2, DEPTH_EXTENT/2]
 
 # Plot 1: True Heightmap
-im1 = axes[0].imshow(true_heights, cmap='viridis', origin='upper')
+im1 = axes[0].imshow(true_heights, cmap='viridis', extent=img_extent, origin='lower')
 axes[0].set_title("True Heightmap")
+axes[0].set_aspect('equal')
 fig.colorbar(im1, ax=axes[0], fraction=0.046, pad=0.04)
 
 # Plot 2: Mesh Triangulation OVERLAY
