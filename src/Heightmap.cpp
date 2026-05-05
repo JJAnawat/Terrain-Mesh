@@ -231,21 +231,3 @@ std::vector<glm::vec3> Heightmap::importanceSample(int numSamples) {
 
     return sampledPoints;
 }
-
-std::vector<glm::vec3> Heightmap::generateTestTerrain(int gridWidth, int gridDepth) {
-    std::vector<glm::vec3> points;
-    
-    for (int x = 0; x < gridWidth; ++x) {
-        for (int z = 0; z < gridDepth; ++z) {
-            float px = (x / (float)(gridWidth - 1) - 0.5f) * widthExtent;
-            float pz = (z / (float)(gridDepth - 1) - 0.5f) * depthExtent;
-            
-            float py = 0.5f * std::sin(px * 1.5f) * std::cos(pz * 1.5f)        // Base rolling hills
-                     + 0.2f * std::sin(px * 3.5f + 1.0f) * std::cos(pz * 3.5f) // Mid-frequency details
-                     + 0.1f * std::sin(px * 8.0f);                             // High-frequency ridges
-            
-            points.push_back(glm::vec3(px, py, pz));
-        }
-    }
-    return points;
-}

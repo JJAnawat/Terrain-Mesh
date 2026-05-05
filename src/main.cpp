@@ -109,7 +109,7 @@ int main() {
     glfwSetKeyCallback(window, keyCallback);
 
     Heightmap heightmap(4.0f, 4.0f, 1.0f);
-    if(!heightmap.load("assets/mount-fuji.png"))
+    if(!heightmap.load("assets/test-terrain.png"))
         return -1;  
 
     DCEL dcel;
@@ -126,7 +126,7 @@ int main() {
                 rebuildRequested = false;
 
                 auto start_time = std::chrono::high_resolution_clock::now();
-                mesher.rebuild_mesh(camPos, currentFov, 10000, 0, baseCorners); // Only algo 0-4 is working right now
+                mesher.rebuild_mesh(camPos, currentFov, 1000, 0, baseCorners); // Only algo 0-4 is working right now
                 auto end_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double, std::milli> time_taken = end_time - start_time;
 
