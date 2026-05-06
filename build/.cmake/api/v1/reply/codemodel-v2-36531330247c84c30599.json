@@ -1,0 +1,516 @@
+{
+	"configurations" : 
+	[
+		{
+			"abstractTargets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Threads::Threads::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Threads__Threads-Debug-1d8b6143ebc5d97394c2.json",
+					"name" : "Threads::Threads",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glad::glad::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glad__glad-Debug-cd611224e57bf072add2.json",
+					"name" : "glad::glad",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glfw::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glfw-Debug-a2c8e7c635e18f6a38aa.json",
+					"name" : "glfw",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glm::glm::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glm__glm-Debug-13d3128e2495920ae61b.json",
+					"name" : "glm::glm",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glm::glm-header-only::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glm__glm-header-only-Debug-866b11fc16d6b0be8a81.json",
+					"name" : "glm::glm-header-only",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "imgui::imgui::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-imgui__imgui-Debug-f3eb9157b50316e3720e.json",
+					"name" : "imgui::imgui",
+					"projectIndex" : 0
+				}
+			],
+			"directories" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f040eec181a89de70dbe.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "TerrainMesh",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-Debug-3f1757bbc96758f49f4f.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TerrainMesh::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TerrainMesh-Debug-ef6b584ff355a1b0c96f.json",
+					"name" : "TerrainMesh",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-Debug-04a97b51f64243f3cc7b.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				}
+			]
+		},
+		{
+			"abstractTargets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Threads::Threads::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Threads__Threads-Release-1d8b6143ebc5d97394c2.json",
+					"name" : "Threads::Threads",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glad::glad::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glad__glad-Release-d397f86c5c5d49db686f.json",
+					"name" : "glad::glad",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glfw::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glfw-Release-c2f1418bdd0ae7a72892.json",
+					"name" : "glfw",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glm::glm::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glm__glm-Release-fe9b0e051b11c56a8319.json",
+					"name" : "glm::glm",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glm::glm-header-only::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glm__glm-header-only-Release-866b11fc16d6b0be8a81.json",
+					"name" : "glm::glm-header-only",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "imgui::imgui::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-imgui__imgui-Release-f6e82c69d1dc945508f4.json",
+					"name" : "imgui::imgui",
+					"projectIndex" : 0
+				}
+			],
+			"directories" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"build" : ".",
+					"jsonFile" : "directory-.-Release-f040eec181a89de70dbe.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "TerrainMesh",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-Release-3f1757bbc96758f49f4f.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TerrainMesh::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TerrainMesh-Release-2ff8602bed5d385382c5.json",
+					"name" : "TerrainMesh",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-Release-04a97b51f64243f3cc7b.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				}
+			]
+		},
+		{
+			"abstractTargets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Threads::Threads::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Threads__Threads-MinSizeRel-1d8b6143ebc5d97394c2.json",
+					"name" : "Threads::Threads",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glad::glad::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glad__glad-MinSizeRel-d397f86c5c5d49db686f.json",
+					"name" : "glad::glad",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glfw::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glfw-MinSizeRel-c2f1418bdd0ae7a72892.json",
+					"name" : "glfw",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glm::glm::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glm__glm-MinSizeRel-fe9b0e051b11c56a8319.json",
+					"name" : "glm::glm",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glm::glm-header-only::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glm__glm-header-only-MinSizeRel-866b11fc16d6b0be8a81.json",
+					"name" : "glm::glm-header-only",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "imgui::imgui::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-imgui__imgui-MinSizeRel-f6e82c69d1dc945508f4.json",
+					"name" : "imgui::imgui",
+					"projectIndex" : 0
+				}
+			],
+			"directories" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"build" : ".",
+					"jsonFile" : "directory-.-MinSizeRel-f040eec181a89de70dbe.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "MinSizeRel",
+			"projects" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "TerrainMesh",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-MinSizeRel-3f1757bbc96758f49f4f.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TerrainMesh::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TerrainMesh-MinSizeRel-611f813b0f086916d67b.json",
+					"name" : "TerrainMesh",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-MinSizeRel-04a97b51f64243f3cc7b.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				}
+			]
+		},
+		{
+			"abstractTargets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Threads::Threads::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Threads__Threads-RelWithDebInfo-1d8b6143ebc5d97394c2.json",
+					"name" : "Threads::Threads",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glad::glad::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glad__glad-RelWithDebInfo-d397f86c5c5d49db686f.json",
+					"name" : "glad::glad",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glfw::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glfw-RelWithDebInfo-c2f1418bdd0ae7a72892.json",
+					"name" : "glfw",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glm::glm::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glm__glm-RelWithDebInfo-fe9b0e051b11c56a8319.json",
+					"name" : "glm::glm",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glm::glm-header-only::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glm__glm-header-only-RelWithDebInfo-866b11fc16d6b0be8a81.json",
+					"name" : "glm::glm-header-only",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "imgui::imgui::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-imgui__imgui-RelWithDebInfo-f6e82c69d1dc945508f4.json",
+					"name" : "imgui::imgui",
+					"projectIndex" : 0
+				}
+			],
+			"directories" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"build" : ".",
+					"jsonFile" : "directory-.-RelWithDebInfo-f040eec181a89de70dbe.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "RelWithDebInfo",
+			"projects" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "TerrainMesh",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-RelWithDebInfo-3f1757bbc96758f49f4f.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TerrainMesh::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TerrainMesh-RelWithDebInfo-c310026b836ab03a7a4d.json",
+					"name" : "TerrainMesh",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-RelWithDebInfo-04a97b51f64243f3cc7b.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/JJ/Year3/Comp-Geo/terrain-mesh/build",
+		"source" : "C:/JJ/Year3/Comp-Geo/terrain-mesh"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 10
+	}
+}

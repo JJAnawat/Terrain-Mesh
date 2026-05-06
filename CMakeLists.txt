@@ -9,17 +9,17 @@ find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 
-include_directories(third_party)
+include_directories(include include/algorithms include/data_structures include/rendering third_party)
 
 # stb_image is header-only, just drop it in src/
 add_executable(TerrainMesh
     src/main.cpp
-    src/Heightmap.cpp
-    src/DCEL.cpp
-    src/Delaunay.cpp
-    src/Renderer.cpp
-    src/Camera.cpp
-    src/TerrainMesher.cpp
+    src/data_structures/Heightmap.cpp
+    src/data_structures/DCEL.cpp
+    src/algorithms/Delaunay.cpp
+    src/rendering/Renderer.cpp
+    src/rendering/Camera.cpp
+    src/algorithms/TerrainMesher.cpp
 )
 
 target_link_libraries(TerrainMesh PRIVATE

@@ -1,0 +1,63 @@
+# CMake generation dependency list for this directory.
+C:/JJ/Year3/Comp-Geo/terrain-mesh/CMakeLists.txt
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/CMakeFiles/4.3.2/CMakeCCompiler.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/CMakeFiles/4.3.2/CMakeCXXCompiler.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/CMakeFiles/4.3.2/CMakeRCCompiler.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/CMakeFiles/4.3.2/CMakeSystem.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glad/gladConfig.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glad/gladConfigVersion.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glad/gladTargets-debug.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glad/gladTargets-release.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glad/gladTargets.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glfw3/glfw3Config.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glfw3/glfw3ConfigVersion.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glfw3/glfw3Targets-debug.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glfw3/glfw3Targets-release.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glfw3/glfw3Targets.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glm/glmConfig-debug.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glm/glmConfig-release.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glm/glmConfig.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/glm/glmConfigVersion.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/imgui/imgui-config.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets-debug.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets-release.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets.cmake
+C:/JJ/Year3/Comp-Geo/terrain-mesh/vcpkg.json
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeCInformation.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeCXXInformation.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeDependentOption.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeFindDependencyMacro.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeGenericSystem.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeInitializeConfigs.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeRCInformation.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeSystemSpecificInformation.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CMakeSystemSpecificInitialize.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CheckCSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CheckIncludeFile.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/CheckLibraryExists.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Compiler/MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Compiler/MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Compiler/MSVC.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/FindThreads.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CMakeCLinkerInformation.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CMakeCXXLinkerInformation.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CMakeCommonLinkerInformation.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Internal/CheckSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Linker/MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Linker/MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Linker/MSVC.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Linker/Windows-MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Linker/Windows-MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Linker/Windows-MSVC.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Windows-Initialize.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Windows-MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Windows-MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Windows-MSVC.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/Windows.cmake
+C:/Program Files/CMake/share/cmake-4.3/Modules/Platform/WindowsPaths.cmake
+C:/vcpkg/scripts/buildsystems/vcpkg.cmake

@@ -1,0 +1,3 @@
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/CMakeFiles/TerrainMesh.dir
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/CMakeFiles/ALL_BUILD.dir
+C:/JJ/Year3/Comp-Geo/terrain-mesh/build/CMakeFiles/ZERO_CHECK.dir

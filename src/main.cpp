@@ -8,13 +8,13 @@
 #include <chrono>
 #include <fstream>
 
-#include "Camera.h"
-#include "Renderer.h"
-#include "Heightmap.h"
-#include "TerrainMesher.h"
-#include "Geometry.h"
-#include "DCEL.h"
-#include "Delaunay.h"
+#include "rendering/Camera.h"
+#include "rendering/Renderer.h"
+#include "data_structures/Heightmap.h"
+#include "algorithms/TerrainMesher.h"
+#include "data_structures/Geometry.h"
+#include "data_structures/DCEL.h"
+#include "algorithms/Delaunay.h"
 
 #include <GLFW/glfw3.h>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -76,6 +76,36 @@ std::atomic<bool> rebuildRequested{false};
 glm::vec3 requestedCameraPos;
 std::atomic<float> requestedZoom;
 
+// Parse command-line arguments
+struct CmdArgs {
+    std::string inputFile = "assets/mount-fuji.png";
+    int numPoints = 100;
+    int algorithm = 0;
+};
+
+CmdArgs parseArgs(int argc, char* argv[]) {
+    CmdArgs args;
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--input" && i + 1 < argc) {
+            args.inputFile = argv[++i];
+        } else if (arg == "--num_points" && i + 1 < argc) {
+            args.numPoints = std::stoi(argv[++i]);
+        } else if (arg == "--algorithm" && i + 1 < argc) {
+            args.algorithm = std::stoi(argv[++i]);
+        } else if (arg == "--help") {
+            std::cout << "Usage: TerrainMesh [options]\n"
+                      << "Options:\n"
+                      << "  --input <file>        Input heightmap file (default: assets/mount-fuji.png)\n"
+                      << "  --num_points <int>    Number of mesh points (default: 100)\n"
+                      << "  --algorithm <int>     Algorithm to use 0-5 (default: 0)\n"
+                      << "  --help                Show this help message\n";
+            exit(0);
+        }
+    }
+    return args;
+}
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // Only toggle on the exact moment the key is pressed down
     if (key == GLFW_KEY_F && action == GLFW_PRESS) 
@@ -91,7 +121,15 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    // Parse command-line arguments
+    CmdArgs args = parseArgs(argc, argv);
+    
+    std::cout << "Using configuration:\n"
+              << "  Input file: " << args.inputFile << "\n"
+              << "  Num points: " << args.numPoints << "\n"
+              << "  Algorithm: " << args.algorithm << "\n\n";
+    
     if (!glfwInit()) { std::cerr << "GLFW init failed\n"; return -1; }
 
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Terrain Mesh", nullptr, nullptr);
@@ -109,13 +147,13 @@ int main() {
     glfwSetKeyCallback(window, keyCallback);
 
     Heightmap heightmap(4.0f, 4.0f, 1.0f);
-    if(!heightmap.load("assets/test-terrain.png"))
+    if(!heightmap.load(args.inputFile))
         return -1;  
 
     DCEL dcel;
     Delaunay triangulator(dcel);
     TerrainMesher mesher(dcel, triangulator, heightmap);
-
+ 
     std::vector<glm::vec3> baseCorners = heightmap.getFourCorners();
 
     std::thread lodThread([&](){
@@ -126,7 +164,7 @@ int main() {
                 rebuildRequested = false;
 
                 auto start_time = std::chrono::high_resolution_clock::now();
-                mesher.rebuild_mesh(camPos, currentFov, 1000, 0, baseCorners); // Only algo 0-4 is working right now
+                mesher.rebuild_mesh(camPos, currentFov, args.numPoints, args.algorithm, baseCorners);
                 auto end_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double, std::milli> time_taken = end_time - start_time;
 

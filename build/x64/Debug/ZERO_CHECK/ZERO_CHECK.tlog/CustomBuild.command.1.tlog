@@ -1,0 +1,10 @@
+^C:\JJ\YEAR3\COMP-GEO\TERRAIN-MESH\BUILD\CMAKEFILES\FED041E36144C32EABC0AC86EFEA9BCC\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/JJ/Year3/Comp-Geo/terrain-mesh -BC:/JJ/Year3/Comp-Geo/terrain-mesh/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/JJ/Year3/Comp-Geo/terrain-mesh/build/TerrainMesh.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
