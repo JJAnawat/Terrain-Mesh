@@ -46,6 +46,13 @@ cd build\Debug
 - `--help`
   - Show usage help and exit.
 
+### Algorithm
+- `0`: Uniform Grid Sampling
+- `1`: Uniform Grid Sampling + DAG
+- `2`: Sobel Edge Detection
+- `3`: Sobel Edge Detection + DAG
+- `4`: Garland Greedy Triangulation
+
 ## Example commands
 
 Run a custom heightmap from the build folder:
@@ -62,7 +69,13 @@ cd build\Debug
 .\TerrainMesh.exe --input ..\..\assets\test-terrain.png --num_points 1000 --algorithm 2
 ```
 
-## Output files
+## Benchmarking the Mesh
+
+Back to the project root, you can evaluate the accuracy of the generated mesh against the original heightmap using the provided benchmark script.
+
+To evaluate mesh accuracy against the original heightmap:
+
+1. **Export mesh data**: While running the application, press `C` to export the current mesh to CSV files.
 
 When the mesh is exported, the program writes:
 
@@ -70,12 +83,6 @@ When the mesh is exported, the program writes:
 - `output/triangles.csv`
 
 Use these files for external analysis or visualization.
-
-## Benchmarking the Mesh
-
-To evaluate mesh accuracy against the original heightmap:
-
-1. **Export mesh data**: While running the application, press `C` to export the current mesh to CSV files.
 
 2. **Run the benchmark script**:
 

@@ -17,5 +17,5 @@ py = (0.5 * np.sin(PX * 1.5) * np.cos(PZ * 1.5)
  
 py = (py - py.min()) / (py.max() - py.min())  # normalize to [0, 1]
 img = Image.fromarray((py * 255).astype(np.uint8), mode='L')
-img.save("C:/JJ/Year3/Comp-Geo/terrain-mesh/assets/test-terrain.png")
+img.save("assets/test-terrain.png")
 print("Saved test-terrain.png")

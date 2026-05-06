@@ -44,7 +44,7 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
 
 void exportMeshToCSV(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& indices) {
     // 1. Export Vertices
-    std::ofstream vFile("C:/JJ/Year3/Comp-Geo/terrain-mesh/output/vertices.csv");
+    std::ofstream vFile("../../output/vertices.csv");
     vFile << "x,y,z\n";
     for (const auto& v : verts) {
         vFile << v.x << "," << v.y << "," << v.z << "\n";
@@ -52,7 +52,7 @@ void exportMeshToCSV(const std::vector<glm::vec3>& verts, const std::vector<unsi
     vFile.close();
 
     // 2. Export Triangles (Indices)
-    std::ofstream tFile("C:/JJ/Year3/Comp-Geo/terrain-mesh/output/triangles.csv");
+    std::ofstream tFile("../../output/triangles.csv");
     tFile << "v0,v1,v2\n";
     for (size_t i = 0; i < indices.size(); i += 3) {
         tFile << indices[i] << "," << indices[i+1] << "," << indices[i+2] << "\n";
