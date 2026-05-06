@@ -79,7 +79,7 @@ std::atomic<float> requestedZoom;
 // Parse command-line arguments
 struct CmdArgs {
     std::string inputFile = "assets/mount-fuji.png";
-    int numPoints = 100;
+    int numPoints = 1000;
     int algorithm = 0;
 };
 
@@ -97,7 +97,7 @@ CmdArgs parseArgs(int argc, char* argv[]) {
             std::cout << "Usage: TerrainMesh [options]\n"
                       << "Options:\n"
                       << "  --input <file>        Input heightmap file (default: assets/mount-fuji.png)\n"
-                      << "  --num_points <int>    Number of mesh points (default: 100)\n"
+                      << "  --num_points <int>    Number of mesh points (default: 1000)\n"
                       << "  --algorithm <int>     Algorithm to use 0-5 (default: 0)\n"
                       << "  --help                Show this help message\n";
             exit(0);
